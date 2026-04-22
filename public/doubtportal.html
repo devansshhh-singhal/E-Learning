@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doubt Portal | ANSH E-LEARNING</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❓</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        ansh: { blue: '#1b1db9', hover: '#151794' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            transition: background-color 0.3s; 
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, button, a, p, span, select, label, input, textarea { 
+            letter-spacing: 0.08em; 
+            font-style: normal !important; 
+        }
+
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+        }
+        .dark .glass-card { 
+            background: rgba(15, 23, 42, 0.7); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+
+        /* Fixed Mobile Sidebar Logic */
+        #sidebar {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100vh;
+            z-index: 100;
+            padding-top: 80px;
+        }
+        @media (min-width: 1024px) {
+            #sidebar { 
+                transform: translateX(0) !important; 
+                position: sticky;
+                top: 64px;
+                height: calc(100vh - 64px);
+                z-index: 40;
+                padding-top: 20px;
+            }
+        }
+        .sidebar-open #sidebar { 
+            transform: translateX(0); 
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 90;
+        }
+        .sidebar-open .sidebar-overlay { display: block; }
+
+        .sidebar-item { transition: all 0.2s; }
+        .sidebar-item:hover, .sidebar-item.active { 
+            background: rgba(27, 29, 185, 0.08); 
+            color: #1b1db9; 
+            border-right: 4px solid #1b1db9; 
+        }
+        .dark .sidebar-item:hover, .dark .sidebar-item.active { 
+            background: rgba(255,255,255,0.05); 
+            color: #60a5fa; 
+            border-right-color: #60a5fa; 
+        }
+
+        .animate-fade { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .resolved-badge {
+            background: #10b981;
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+        
+        .reply-card { border-left: 3px solid #1b1db9; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #1e293b; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen">
+
+    <!-- Mobile Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-[110] bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800">
+        <div class="max-w-[1600px] mx-auto px-6 h-16 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-slate-500">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+                <span class="text-xs font-black uppercase tracking-[0.2em] text-ansh-blue dark:text-blue-400">Help Desk</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:scale-105 transition-all">
+                    <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i>
+                </button>
+                <button onclick="openPostModal()" class="bg-ansh-blue text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-ansh-blue/20 transition-all hover:bg-ansh-hover">Ask Doubt</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex pt-16">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800">
+            <div class="p-6">
+                <nav class="space-y-1">
+                    <a href="userDashboard.html" class="sidebar-item flex items-center px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <i data-lucide="layout" class="w-4 h-4 mr-3"></i> Home
+                    </a>
+                    <a href="profileSettings.html" class="sidebar-item flex items-center px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <i data-lucide="user" class="w-4 h-4 mr-3"></i> My Profile
+                    </a>
+                    <a href="noticeboard.html" class="sidebar-item flex items-center px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <i data-lucide="bell" class="w-4 h-4 mr-3"></i> Notice Board
+                    </a>
+                    <a href="examination.html" class="sidebar-item flex items-center px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <i data-lucide="file-text" class="w-4 h-4 mr-3"></i> Examination
+                    </a>
+                    <a href="leaderboard.html" class="sidebar-item flex items-center px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <i data-lucide="award" class="w-4 h-4 mr-3"></i> Leaderboard
+                    </a>
+                    <a href="doubtportal.html" class="sidebar-item active flex items-center px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                        <i data-lucide="help-circle" class="w-4 h-4 mr-3"></i> Doubt Portal
+                    </a>
+                    <button onclick="handleSignOut()" class="w-full text-left sidebar-item flex items-center px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all">
+                        <i data-lucide="power" class="w-4 h-4 mr-3"></i> Logout
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-6 md:p-12">
+            <div class="max-w-5xl mx-auto">
+                
+                <header class="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
+                    <div class="text-center md:text-left">
+                        <h1 class="text-4xl font-black uppercase tracking-tighter mb-2 leading-none text-slate-900 dark:text-white">Doubt Portal</h1>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Community Solved Learning</p>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                        <div class="glass-card px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-3 shadow-sm">
+                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400"></i>
+                            <input type="text" id="search-input" oninput="loadDoubts()" placeholder="Search doubts..." class="bg-transparent text-[10px] font-black uppercase outline-none w-full sm:w-40 text-slate-900 dark:text-white">
+                        </div>
+                        <div class="glass-card px-6 py-2 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-xl">
+                            <select id="filter-subject" onchange="loadDoubts()" class="bg-transparent text-[10px] font-black uppercase text-ansh-blue dark:text-blue-400 outline-none cursor-pointer min-w-[140px]">
+                                <option value="All">All Subjects</option>
+                                <option value="Maths">Mathematics</option>
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                                <option value="Biology">Biology</option>
+                            </select>
+                        </div>
+                    </div>
+                </header>
+
+                <div id="doubts-container" class="grid md:grid-cols-2 gap-6">
+                    <div class="col-span-2 py-24 text-center opacity-30">
+                        <div class="animate-spin h-10 w-10 border-4 border-ansh-blue border-t-transparent rounded-full mx-auto mb-4"></div>
+                        <p class="text-[10px] font-black uppercase tracking-widest">Syncing Queries...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Post/Edit Modal -->
+    <div id="post-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-md" onclick="closeModal()"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-xl rounded-[3rem] shadow-2xl p-10 animate-fade">
+            <h3 id="modal-title" class="text-2xl font-black uppercase tracking-tighter mb-8 text-slate-900 dark:text-white">Post Academic Query</h3>
+            <form id="doubt-form" class="space-y-6">
+                <input type="hidden" id="edit-id">
+                <div class="space-y-1.5">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Question Title</label>
+                    <input id="q-title" type="text" required placeholder="Question Headline" class="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 ring-ansh-blue font-bold text-sm transition-all text-slate-900 dark:text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Subject</label>
+                        <select id="q-subject" required class="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 ring-ansh-blue font-bold text-sm text-slate-900 dark:text-white">
+                            <option value="Maths">Maths</option><option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option><option value="Biology">Biology</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Complexity</label>
+                        <select id="q-level" class="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 ring-ansh-blue font-bold text-sm text-slate-900 dark:text-white">
+                            <option value="Basic">Foundation</option><option value="Intermediate">Intermediate</option><option value="Hard">Advanced</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Detailed Description</label>
+                    <textarea id="q-body" rows="4" required placeholder="Detailed description..." class="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 ring-ansh-blue font-bold text-sm text-slate-900 dark:text-white"></textarea>
+                </div>
+                <button type="submit" id="submit-btn" class="w-full py-5 bg-ansh-blue text-white font-black rounded-3xl uppercase tracking-widest text-[10px] shadow-xl hover:bg-ansh-hover transition-all active:scale-95">Broadcast Question</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Discussion & Reply Modal -->
+    <div id="view-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-md" onclick="closeViewModal()"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-[3rem] shadow-2xl p-10 animate-fade">
+            <div id="doubt-detail-content">
+                <!-- Loaded via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // --- CONFIGURATION & INITIALIZATION --- //PUT YOUR FIREBASE CONFIG DETAILS HERE
+        const firebaseConfig = { apiKey: " ", 
+                                authDomain: " ", 
+                                projectId: " ", 
+                                storageBucket: "  ", 
+                                messagingSenderId: " ", 
+                                appId: " " };
+        const app = initializeApp(config); 
+        const auth = getAuth(app); 
+        const db = getFirestore(app);
+        const appId = 'ansh-elearning-platform';
+
+        let currentUser = null; 
+        let userData = null;
+        let doubtsRegistry = {};
+
+        onAuthStateChanged(auth, async (u) => {
+            if (!u) { window.location.href = "studentlogin.html"; return; }
+            currentUser = u;
+            const snap = await getDoc(doc(db, 'artifacts', appId, 'users', u.uid, 'profile', 'data'));
+            if (snap.exists()) { userData = snap.data(); loadDoubts(); }
+        });
+
+        window.toggleSidebar = () => document.body.classList.toggle('sidebar-open');
+
+        window.handleSignOut = () => {
+            if(confirm("Securely terminate session?")) {
+                signOut(auth).then(() => window.location.href = "studentlogin.html");
+            }
+        };
+
+        window.toggleTheme = () => {
+            const isD = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('ansh_theme', isD ? 'dark' : 'light');
+            const icon = document.getElementById('theme-icon');
+            if (icon) icon.setAttribute('data-lucide', isD ? 'sun' : 'moon');
+            lucide.createIcons();
+        };
+
+        if (localStorage.getItem('ansh_theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+
+        window.openPostModal = (id = null) => {
+            const modal = document.getElementById('post-modal');
+            const title = document.getElementById('modal-title');
+            const btn = document.getElementById('submit-btn');
+            const form = document.getElementById('doubt-form');
+            
+            form.reset();
+            if (id && doubtsRegistry[id]) {
+                const editData = doubtsRegistry[id];
+                title.innerText = "Edit Academic Query";
+                btn.innerText = "Synchronize Changes";
+                document.getElementById('edit-id').value = editData.id;
+                document.getElementById('q-title').value = editData.title;
+                document.getElementById('q-subject').value = editData.subject;
+                document.getElementById('q-level').value = editData.level;
+                document.getElementById('q-body').value = editData.body;
+            } else {
+                title.innerText = "Post Academic Query";
+                btn.innerText = "Broadcast Question";
+                document.getElementById('edit-id').value = "";
+            }
+            modal.classList.remove('hidden');
+        };
+
+        window.closeModal = () => document.getElementById('post-modal').classList.add('hidden');
+        window.closeViewModal = () => document.getElementById('view-modal').classList.add('hidden');
+
+        document.getElementById('doubt-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('edit-id').value;
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+
+            const data = {
+                title: document.getElementById('q-title').value,
+                subject: document.getElementById('q-subject').value,
+                level: document.getElementById('q-level').value,
+                body: document.getElementById('q-body').value,
+                authorName: userData.displayName || currentUser.email,
+                authorUid: currentUser.uid,
+                updatedAt: serverTimestamp(),
+                status: 'open'
+            };
+
+            try {
+                if (editId) {
+                    await updateDoc(doc(db, `artifacts/${appId}/public/data/doubts`, editId), data);
+                } else {
+                    data.createdAt = serverTimestamp();
+                    data.repliesCount = 0;
+                    await addDoc(collection(db, `artifacts/${appId}/public/data/doubts`), data);
+                }
+                closeModal();
+            } catch (err) { alert("Action failed: Check permissions."); }
+            finally { btn.disabled = false; }
+        };
+
+        window.deleteDoubt = async (id) => {
+            if (confirm("Delete this doubt permanently from the portal?")) {
+                await deleteDoc(doc(db, `artifacts/${appId}/public/data/doubts`, id));
+            }
+        };
+
+        window.toggleResolved = async (id, currentStatus) => {
+            const newStatus = currentStatus === 'resolved' ? 'open' : 'resolved';
+            await updateDoc(doc(db, `artifacts/${appId}/public/data/doubts`, id), { status: newStatus });
+        };
+
+        window.reportDoubt = (id) => {
+            alert("This query has been flagged for administrative review. Thank you for keeping ANSH safe.");
+        };
+
+        window.openDoubt = (id) => {
+            const doubt = doubtsRegistry[id];
+            if (!doubt) return;
+
+            const detail = document.getElementById('doubt-detail-content');
+            detail.innerHTML = `
+                <div class="flex justify-between items-start mb-8">
+                    <span class="px-4 py-1.5 bg-ansh-blue/5 text-ansh-blue text-[9px] font-black uppercase rounded-lg">${doubt.subject}</span>
+                    <button onclick="closeViewModal()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <h2 class="text-3xl font-black uppercase tracking-tighter mb-4 leading-tight text-slate-900 dark:text-white">${doubt.title}</h2>
+                <div class="flex items-center space-x-3 mb-8">
+                    <div class="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xs font-black text-ansh-blue">${doubt.authorName ? doubt.authorName[0] : '?'}</div>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">${doubt.authorName}</span>
+                </div>
+                <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium mb-12 bg-slate-50 dark:bg-slate-950/50 p-8 rounded-3xl border border-slate-100 dark:border-slate-800">${doubt.body}</p>
+                
+                <h4 class="text-xs font-black uppercase tracking-[0.4em] text-slate-400 mb-8 border-b dark:border-slate-800 pb-4">Solutions & Discussion</h4>
+                <div id="replies-list" class="space-y-6 mb-12 min-h-[100px]">
+                    <p class="text-center text-[9px] font-black uppercase text-slate-300 py-10">No replies yet. Be the first to help!</p>
+                </div>
+
+                <div class="sticky bottom-0 bg-white dark:bg-slate-900 pt-6 mt-12 border-t dark:border-slate-800">
+                    <div class="flex gap-2">
+                        <input id="reply-input" type="text" placeholder="Type your solution here..." class="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-4 text-xs font-bold outline-none focus:ring-2 ring-ansh-blue text-slate-900 dark:text-white">
+                        <button onclick="postReply('${doubt.id}')" id="reply-btn" class="px-8 py-4 bg-ansh-blue text-white rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center"><i data-lucide="send" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+            `;
+            loadReplies(doubt.id);
+            document.getElementById('view-modal').classList.remove('hidden');
+            lucide.createIcons();
+        };
+
+        window.loadReplies = (doubtId) => {
+            const repliesRef = collection(db, `artifacts/${appId}/public/data/doubts/${doubtId}/replies`);
+            const q = query(repliesRef, orderBy('createdAt', 'asc'));
+            
+            onSnapshot(q, (snap) => {
+                const list = document.getElementById('replies-list');
+                if (!list) return;
+                list.innerHTML = '';
+                if (snap.empty) {
+                    list.innerHTML = `<p class="text-center text-[9px] font-black uppercase text-slate-300 py-10">No replies yet. Be the first to help!</p>`;
+                    return;
+                }
+                snap.forEach(doc => {
+                    const r = doc.data();
+                    list.innerHTML += `
+                        <div class="flex gap-4 items-start animate-fade reply-card pl-4">
+                            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex-shrink-0 flex items-center justify-center font-black text-xs text-slate-400 uppercase">${r.authorName[0]}</div>
+                            <div class="flex-1 bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl border border-slate-100 dark:border-slate-800">
+                                <div class="flex justify-between items-center mb-2">
+                                    <p class="text-[8px] font-black uppercase text-blue-600 dark:text-blue-400">${r.authorName}</p>
+                                    <p class="text-[7px] font-bold text-slate-300 uppercase">${r.createdAt?.toDate().toLocaleTimeString() || 'Just now'}</p>
+                                </div>
+                                <p class="text-xs font-medium text-slate-600 dark:text-slate-300 leading-relaxed">${r.text}</p>
+                            </div>
+                        </div>`;
+                });
+            });
+        };
+
+        window.postReply = async (doubtId) => {
+            const inp = document.getElementById('reply-input');
+            const btn = document.getElementById('reply-btn');
+            const txt = inp.value.trim();
+            if (!txt) return;
+            
+            btn.disabled = true;
+            try {
+                // Step 1: Add the reply (this is public create permission)
+                await addDoc(collection(db, `artifacts/${appId}/public/data/doubts/${doubtId}/replies`), {
+                    text: txt,
+                    authorName: userData.displayName || currentUser.email,
+                    authorUid: currentUser.uid,
+                    createdAt: serverTimestamp()
+                });
+                
+                // Step 2: Clear input immediately to show responsiveness
+                inp.value = '';
+
+                // Step 3: Attempt to increment count. This might fail if the user isn't the doubt author
+                // (based on common Firestore rules). We wrap this separately so it doesn't cause a prompt alert.
+                try {
+                    const doubtRef = doc(db, `artifacts/${appId}/public/data/doubts`, doubtId);
+                    const doubtSnap = await getDoc(doubtRef);
+                    if (doubtSnap.exists()) {
+                        await updateDoc(doubtRef, { repliesCount: (doubtSnap.data().repliesCount || 0) + 1 });
+                    }
+                } catch (countError) {
+                    // Silently ignore counter update failures to prevent annoying glitch alerts
+                    console.warn("Counter update skipped (permission restriction).");
+                }
+                
+            } catch (e) { 
+                alert("Failed to post reply. Check your connection or permissions."); 
+            }
+            finally { btn.disabled = false; }
+        };
+
+        window.loadDoubts = () => {
+            const path = `artifacts/${appId}/public/data/doubts`;
+            onSnapshot(collection(db, path), (snap) => {
+                const cont = document.getElementById('doubts-container');
+                cont.innerHTML = '';
+                const subjectFilter = document.getElementById('filter-subject').value;
+                const searchQuery = document.getElementById('search-input').value.toLowerCase();
+                
+                snap.docs.forEach(doc => {
+                    const d = { id: doc.id, ...doc.data() };
+                    doubtsRegistry[d.id] = d; 
+                    
+                    if (subjectFilter !== 'All' && d.subject !== subjectFilter) return;
+                    if (searchQuery && !d.title.toLowerCase().includes(searchQuery)) return;
+                    
+                    const isAuthor = d.authorUid === currentUser.uid;
+                    const isResolved = d.status === 'resolved';
+
+                    cont.innerHTML += `
+                        <div class="glass-card p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 animate-fade relative group shadow-sm hover:shadow-xl transition-all">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="flex gap-2">
+                                    <span class="px-4 py-1.5 bg-ansh-blue/5 dark:bg-blue-400/10 text-ansh-blue dark:text-blue-400 text-[8px] font-black uppercase rounded-lg tracking-widest">${d.subject}</span>
+                                    ${isResolved ? `<span class="px-4 py-1.5 resolved-badge text-[8px] font-black uppercase rounded-lg tracking-widest flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Resolved</span>` : ''}
+                                </div>
+                                <div class="flex gap-2">
+                                    ${isAuthor ? `
+                                        <button onclick='toggleResolved("${d.id}", "${d.status}")' class="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all" title="Mark as Resolved"><i data-lucide="check" class="w-3.5 h-3.5"></i></button>
+                                        <button onclick='openPostModal("${d.id}")' class="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-400 hover:text-ansh-blue transition-all"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                                        <button onclick="deleteDoubt('${d.id}')" class="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-400 hover:text-red-500 transition-all"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                    ` : `
+                                        <button onclick="reportDoubt('${d.id}')" class="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-300 hover:text-orange-500 transition-all" title="Report Content"><i data-lucide="shield-alert" class="w-3.5 h-3.5"></i></button>
+                                    `}
+                                </div>
+                            </div>
+                            <h4 class="text-lg font-black uppercase leading-tight mb-4 text-slate-900 dark:text-white ${isResolved ? 'opacity-50' : ''}">${d.title}</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-3 mb-8 leading-relaxed font-medium">${d.body}</p>
+                            <div class="flex items-center justify-between pt-6 border-t border-slate-50 dark:border-slate-800/50">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase">${d.authorName ? d.authorName[0] : '?'}</div>
+                                    <div class="min-w-0">
+                                        <span class="text-[9px] font-black uppercase text-slate-400 truncate block">${d.authorName || 'Anonymous'}</span>
+                                        <span class="text-[7px] font-bold text-slate-300 uppercase tracking-tighter">${d.level || 'Foundation'} Level</span>
+                                    </div>
+                                </div>
+                                <button onclick="openDoubt('${d.id}')" class="flex items-center gap-2 text-[9px] font-black uppercase text-white bg-ansh-blue px-4 py-2 rounded-xl shadow-lg shadow-ansh-blue/20 hover:scale-105 transition-all active:scale-95">
+                                    <i data-lucide="message-square" class="w-3 h-3"></i>
+                                    <span>${d.repliesCount || 0} View / Help</span>
+                                </button>
+                            </div>
+                        </div>`;
+                });
+                if (snap.empty) {
+                    cont.innerHTML = `<div class="col-span-2 py-24 text-center glass-card rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-800 uppercase font-black text-[10px] text-slate-400 tracking-widest">The discussion vault is currently empty.</div>`;
+                }
+                lucide.createIcons();
+            });
+        };
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASTER HUB | ANSH EDU INFRASTRUCTURE</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        ansh: {
+                            indigo: '#4f46e5',
+                            slate: '#0f172a',
+                            accent: '#6366f1',
+                            dark: '#020617',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b'
+                        }
+                    },
+                    borderRadius: {
+                        '3xl': '1.5rem',
+                        '4xl': '2rem',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --sidebar-width: 280px;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            cursor: none !important;
+            transition: background-color 0.5s ease;
+        }
+
+        h1, h2, h3, h4, h5, h6, button, a, p, span, input, select, textarea, label {
+            letter-spacing: 0.02em;
+            font-style: normal !important;
+        }
+
+        .font-tech { font-family: 'JetBrains Mono', monospace; }
+
+        /* Repaired Fluid Mirror Cursor */
+        #custom-cursor {
+            width: 8px;
+            height: 8px;
+            background: #4f46e5;
+            border-radius: 50%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10001;
+            opacity: 0;
+        }
+
+        #custom-cursor-follower {
+            width: 24px;
+            height: 24px;
+            border: 1.5px solid rgba(79, 70, 229, 0.5);
+            border-radius: 50%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10000;
+            opacity: 0;
+            transition: width 0.3s ease, height 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .cursor-active #custom-cursor,
+        .cursor-active #custom-cursor-follower { opacity: 1; }
+
+        .cursor-hover #custom-cursor-follower {
+            width: 50px;
+            height: 50px;
+            background: rgba(79, 70, 229, 0.08);
+            border-color: #4f46e5;
+            border-width: 2px;
+        }
+
+        /* Glassmorphism Infrastructure */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .dark .glass-card {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Sidebar Transition Logic */
+        #sidebar {
+            width: var(--sidebar-width);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(0);
+        }
+
+        .sidebar-collapsed #sidebar {
+            transform: translateX(-100%);
+        }
+
+        #main-content {
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Sidebar Tabs Redesign */
+        .sidebar-item { 
+            transition: all 0.3s ease; 
+            border-radius: 12px;
+            color: #64748b; 
+            margin: 4px 14px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .sidebar-item i { margin-right: 12px; width: 16px; height: 16px; }
+        .sidebar-item:hover { color: #818cf8; background: rgba(79, 70, 229, 0.05); }
+        .sidebar-item.active { 
+            color: #ffffff; 
+            background: #4f46e5; 
+            box-shadow: 0 8px 15px -3px rgba(79, 70, 229, 0.4); 
+        }
+
+        .badge-cyber {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 7px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: 1px solid currentColor;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-reveal { animation: fadeIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-ansh-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+
+    <div id="custom-cursor"></div>
+    <div id="custom-cursor-follower"></div>
+
+    <!-- Section: High-Tech Login Portal -->
+    <div id="login-screen" class="fixed inset-0 z-[2000] bg-slate-950 flex items-center justify-center p-6 overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-ansh-indigo/10 blur-[150px] rounded-full animate-pulse"></div>
+
+        <div class="glass-card p-10 md:p-14 rounded-[3rem] w-full max-w-lg relative z-10 text-center scale-90 opacity-0 overflow-hidden" id="login-box">
+            <div class="mb-10">
+                <div class="w-20 h-20 bg-gradient-to-br from-indigo-600 to-ansh-accent text-white rounded-[1.8rem] flex items-center justify-center mx-auto mb-8 shadow-2xl relative group">
+                    <i data-lucide="shield-check" class="w-10 h-10"></i>
+                </div>
+                <h2 class="text-2xl font-black uppercase tracking-tighter text-white leading-none mb-3">Master Auth</h2>
+                <p class="text-[8px] font-black uppercase tracking-[0.6em] text-indigo-400 opacity-60">Authorized Command Protocol</p>
+            </div>
+
+            <div id="login-error" class="hidden mb-6 p-4 bg-ansh-rose/10 text-ansh-rose text-[9px] font-black uppercase rounded-2xl border border-ansh-rose/20 animate-pulse">
+                Verification Failed: Access Restricted
+            </div>
+
+            <form id="admin-login-form" class="space-y-4 text-left">
+                <div>
+                    <label class="text-[8px] font-black uppercase tracking-widest text-slate-500 ml-3 mb-1.5 block">Staff Identifier</label>
+                    <input type="email" id="admin-email" required placeholder="staff_id@ansh.com" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl font-bold text-xs outline-none transition-all focus:border-ansh-indigo text-white placeholder:text-slate-700 cursor-none">
+                </div>
+                <div>
+                    <label class="text-[8px] font-black uppercase tracking-widest text-slate-500 ml-3 mb-1.5 block">Encryption Key</label>
+                    <input type="password" id="admin-key" required placeholder="••••••••" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl font-bold text-xs outline-none transition-all focus:border-ansh-indigo text-white placeholder:text-slate-700 cursor-none">
+                </div>
+                <button type="submit" id="login-btn" class="w-full py-5 bg-ansh-indigo text-white font-black rounded-[2.2rem] uppercase tracking-[0.4em] text-[10px] shadow-2xl hover:bg-ansh-accent active:scale-95 transition-all cursor-none mt-4">Initialize Interface</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="hidden fixed inset-0 z-[1500] bg-white dark:bg-ansh-dark flex flex-col items-center justify-center text-center p-6 backdrop-blur-3xl">
+        <div class="relative w-16 h-16 mb-8">
+            <div class="absolute inset-0 border-[4px] border-ansh-indigo/10 rounded-full"></div>
+            <div class="absolute inset-0 border-[4px] border-ansh-indigo border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <p class="text-[10px] font-black uppercase tracking-[0.8em] text-slate-400">Syncing Vault...</p>
+    </div>
+
+    <!-- Main Command Hub -->
+    <div id="admin-dashboard" class="hidden h-screen flex flex-col overflow-hidden transition-opacity duration-1000">
+        
+        <!-- Navbar -->
+        <nav class="w-full z-[100] bg-white/90 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 h-14 flex items-center px-6 justify-between shadow-sm flex-shrink-0">
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleSidebar()" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-400 transition-all cursor-none">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+                <div class="h-6 w-px bg-slate-200 dark:bg-white/10"></div>
+                <div class="flex items-center space-x-3">
+                    <div class="bg-ansh-indigo p-1.5 rounded-lg shadow-lg"><i data-lucide="terminal" class="w-4 h-4 text-white"></i></div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-black tracking-tight uppercase leading-none">Ansh Commander</span>
+                        <span id="nav-role-tag" class="text-[7px] font-bold text-ansh-indigo uppercase tracking-widest mt-1">Awaiting Data...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleTheme()" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-400 transition-all hover:scale-110 cursor-none">
+                    <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i>
+                </button>
+                <div class="h-6 w-px bg-slate-200 dark:bg-white/10 mx-2"></div>
+                <button onclick="handleLogout()" class="px-6 py-2 border border-ansh-rose/30 text-ansh-rose rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-ansh-rose hover:text-white transition-all cursor-none">Terminate</button>
+            </div>
+        </nav>
+
+        <div class="flex flex-1 overflow-hidden relative">
+            
+            <aside id="sidebar" class="bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-white/5 flex flex-col flex-shrink-0 z-10">
+                <div class="flex-1 py-6 overflow-y-auto">
+                    
+                    <div id="admin-only-sidebar" class="hidden mb-10">
+                        <p class="text-[8px] font-black uppercase tracking-[0.4em] text-slate-400 mb-4 px-8 opacity-50">Master Core</p>
+                        <nav class="flex flex-col">
+                            <button onclick="switchTab('overview')" id="tab-overview" class="sidebar-item active cursor-none">
+                                <i data-lucide="activity"></i> Intel
+                            </button>
+                            <button onclick="switchTab('users')" id="tab-users" class="sidebar-item cursor-none">
+                                <i data-lucide="users"></i> Registry
+                            </button>
+                            <button onclick="switchTab('enquiries')" id="tab-enquiries" class="sidebar-item cursor-none">
+                                <i data-lucide="mail"></i> Inbox
+                            </button>
+                        </nav>
+                    </div>
+
+                    <div>
+                        <p class="text-[8px] font-black uppercase tracking-[0.4em] text-slate-400 mb-4 px-8 opacity-50">Operations</p>
+                        <nav class="flex flex-col">
+                            <button onclick="switchTab('materials')" id="tab-materials" class="sidebar-item cursor-none">
+                                <i data-lucide="file-box"></i> Vault
+                            </button>
+                            <button onclick="switchTab('exams')" id="tab-exams" class="sidebar-item cursor-none">
+                                <i data-lucide="cpu"></i> Exams
+                            </button>
+                            <button onclick="switchTab('notices')" id="tab-notices" class="sidebar-item cursor-none">
+                                <i data-lucide="megaphone"></i> Notice
+                            </button>
+                            <button onclick="switchTab('results')" id="tab-results" class="sidebar-item cursor-none">
+                                <i data-lucide="bar-chart"></i> Merit
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Identity Widget -->
+                <div class="p-4 bg-slate-50 dark:bg-white/5 m-4 rounded-2xl border border-slate-200 dark:border-white/5 backdrop-blur-md group transition-all hover:scale-[1.02]">
+                    <div class="flex items-center gap-3">
+                        <div id="cur-avatar" class="w-8 h-8 rounded-lg bg-ansh-indigo text-white flex items-center justify-center font-black text-[10px] uppercase shadow-lg">?</div>
+                        <div class="min-w-0">
+                            <p id="cur-name" class="text-[9px] font-black uppercase truncate text-slate-900 dark:text-white leading-none mb-1">Identifying...</p>
+                            <span id="role-pill" class="text-[7px] font-bold text-slate-500 tracking-widest">Validating...</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Workspace Hub -->
+            <main id="main-content" class="flex-1 p-6 md:p-10 overflow-y-auto bg-white dark:bg-ansh-dark/40 relative z-0">
+                <div class="max-w-[1200px] mx-auto">
+                    
+                    <!-- TAB: INTELLIGENCE -->
+                    <div id="content-overview" class="tab-content hidden space-y-8 animate-reveal">
+                        <header>
+                            <h1 class="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-white leading-none">Intelligence Monitor</h1>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-2">Real-time Platform Hub Sync</p>
+                        </header>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="glass-card p-8 rounded-3xl border-t-8 border-ansh-indigo group hover:-translate-y-1 transition-all">
+                                <p class="text-slate-400 text-[8px] font-black uppercase tracking-widest mb-3">Identities</p>
+                                <h4 id="stat-users" class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">--</h4>
+                            </div>
+                            <div class="glass-card p-8 rounded-3xl border-t-8 border-ansh-emerald group hover:-translate-y-1 transition-all">
+                                <p class="text-slate-400 text-[8px] font-black uppercase tracking-widest mb-3">Vault Items</p>
+                                <h4 id="stat-materials" class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">--</h4>
+                            </div>
+                            <div class="glass-card p-8 rounded-3xl border-t-8 border-ansh-amber group hover:-translate-y-1 transition-all">
+                                <p class="text-slate-400 text-[8px] font-black uppercase tracking-widest mb-3">Exam Blocks</p>
+                                <h4 id="stat-exams" class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">--</h4>
+                            </div>
+                            <div class="glass-card p-8 rounded-3xl border-t-8 border-ansh-blue group hover:-translate-y-1 transition-all">
+                                <p class="text-slate-400 text-[8px] font-black uppercase tracking-widest mb-3">Broadcasts</p>
+                                <h4 id="stat-notices" class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">--</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: REGISTRY -->
+                    <div id="content-users" class="tab-content hidden space-y-10 animate-reveal">
+                        <header class="flex justify-between items-end">
+                            <div>
+                                <h1 class="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-white leading-none">Registry Control</h1>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-2">Verified Identity Synchronization Hub</p>
+                            </div>
+                            <button onclick="openNewUserModal()" class="bg-ansh-indigo text-white px-8 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg hover:bg-indigo-700 active:scale-95 transition-all flex items-center gap-3 cursor-none">
+                                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Inject Identity
+                            </button>
+                        </header>
+                        
+                        <div class="glass-card p-3 rounded-2xl flex items-center gap-4 border border-slate-100 dark:border-white/5 shadow-inner">
+                            <i data-lucide="search" class="w-4 h-4 text-ansh-indigo ml-2"></i>
+                            <input type="text" id="user-search" oninput="filterUsers()" placeholder="Search registry by name, role, or UID..." class="bg-transparent border-none outline-none w-full text-sm font-semibold tracking-tight text-slate-900 dark:text-white placeholder:opacity-20 cursor-none">
+                        </div>
+
+                        <div class="glass-card rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-white/5 shadow-xl">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 dark:bg-white/5">
+                                    <tr class="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100 dark:border-white/5">
+                                        <th class="py-5 px-8">Identity profile</th>
+                                        <th class="py-5 px-8">Privilege Tier</th>
+                                        <th class="py-5 px-8">Auth reference</th>
+                                        <th class="py-5 px-8 text-right">Control</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body" class="divide-y divide-slate-50 dark:divide-white/5"></tbody>
+                            </table>
+                            <div id="registry-loader" class="py-20 text-center">
+                                <div class="inline-block animate-spin w-6 h-6 border-2 border-ansh-indigo border-t-transparent rounded-full"></div>
+                                <p class="text-[9px] font-black uppercase tracking-[0.5em] text-slate-400 mt-4">Syncing...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: LESSON VAULT -->
+                    <div id="content-materials" class="tab-content hidden space-y-10 animate-reveal">
+                        <header class="flex justify-between items-end">
+                            <div>
+                                <h1 class="text-2xl font-black uppercase text-slate-900 dark:text-white leading-none">Vault Management</h1>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-2">Precision Content Distribution</p>
+                            </div>
+                            <button onclick="openMaterialModal()" class="bg-ansh-emerald text-white px-8 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg cursor-none hover:scale-105 transition-all">New Asset Sync</button>
+                        </header>
+                        <div id="materials-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    </div>
+
+                    <!-- Additional tabs placeholders -->
+                    <div id="content-exams" class="tab-content hidden space-y-10 animate-reveal">
+                        <header class="flex justify-between items-end"><h1 class="text-2xl font-black uppercase text-slate-900 dark:text-white">Exam Repository</h1><a href="teacherPortal.html" class="bg-ansh-indigo text-white px-8 py-3 rounded-xl text-[9px] font-black uppercase cursor-none">Open Builder</a></header>
+                        <div id="exams-list" class="grid gap-4"></div>
+                    </div>
+                    <div id="content-notices" class="tab-content hidden space-y-10 animate-reveal">
+                        <header class="flex justify-between items-end"><h1 class="text-2xl font-black uppercase text-slate-900 dark:text-white">Bulletins</h1><button onclick="openNoticeModal()" class="bg-ansh-indigo text-white px-8 py-3 rounded-xl text-[9px] font-black uppercase cursor-none">Broadcast</button></header>
+                        <div id="notices-list" class="grid gap-6"></div>
+                    </div>
+                    <div id="content-results" class="tab-content hidden space-y-10 animate-reveal">
+                        <header class="flex justify-between items-end"><h1 class="text-2xl font-black uppercase text-slate-900 dark:text-white leading-none">Performances</h1><select id="exam-result-filter" onchange="filterResults()" class="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-xl px-4 py-2 text-[9px] font-black uppercase text-ansh-indigo outline-none cursor-none"></select></header>
+                        <div id="results-list" class="grid gap-4"></div>
+                    </div>
+                    <div id="content-enquiries" class="tab-content hidden space-y-10 animate-reveal">
+                        <header><h1 class="text-2xl font-black uppercase text-slate-900 dark:text-white leading-none">Security Inbox</h1></header>
+                        <div id="enquiries-list" class="grid gap-4"></div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Administrative Modals -->
+    <div id="user-edit-modal" class="hidden fixed inset-0 z-[1200] flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-slate-950/85 backdrop-blur-3xl" onclick="closeUserModal()"></div>
+        <div class="relative glass-card p-10 md:p-14 rounded-[4rem] w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-2xl animate-reveal">
+            <header class="flex justify-between items-start mb-12">
+                <div>
+                    <h3 id="user-modal-title" class="text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-white leading-none">Identity Master Sync</h3>
+                    <div class="mt-4 flex items-center gap-4">
+                        <span class="badge-cyber text-ansh-indigo border-ansh-indigo/30 bg-ansh-indigo/5">Mapping UID</span>
+                        <input type="text" id="edit-user-uid-input" class="bg-transparent border-none text-[9px] font-bold text-slate-500 uppercase w-72 focus:ring-0 cursor-none font-tech" placeholder="FIREBASE_UID_HASH">
+                    </div>
+                </div>
+                <button onclick="closeUserModal()" class="p-3 bg-slate-100 dark:bg-white/5 rounded-2xl hover:bg-ansh-rose hover:text-white transition-all transform hover:rotate-90"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </header>
+
+            <form id="master-user-form" class="space-y-10">
+                <div class="p-8 bg-slate-50 dark:bg-white/5 rounded-[2.5rem] border border-slate-100 dark:border-white/5 grid md:grid-cols-2 gap-10">
+                    <div class="space-y-3">
+                        <label class="text-[9px] font-black uppercase text-slate-400 ml-4">Access Protocol</label>
+                        <select id="u-role" required class="w-full p-4.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10 rounded-[1.5rem] font-black text-[10px] uppercase cursor-none shadow-sm">
+                            <option value="student">Tier 3: Student</option>
+                            <option value="teacher">Tier 2: Faculty</option>
+                            <option value="admin">Tier 1: Master</option>
+                        </select>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="text-[9px] font-black uppercase text-slate-400 ml-4">Security Override Key</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="u-override" placeholder="Manual Bypass Key" class="flex-1 p-4.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10 rounded-[1.5rem] font-bold text-[10px] uppercase cursor-none font-tech">
+                            <button type="button" onclick="sendResetEmail()" class="px-6 py-4 bg-slate-900 text-white dark:bg-ansh-indigo rounded-[1.5rem] text-[9px] font-black uppercase tracking-widest transition-all hover:scale-105 cursor-none">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-12">
+                    <div class="space-y-6">
+                        <h4 class="text-[9px] font-black uppercase text-slate-400 tracking-[0.4em] ml-4 border-l-3 border-ansh-indigo pl-5">Identity Context</h4>
+                        <input type="text" id="u-name" required placeholder="Authorized Full Name" class="w-full p-4.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 rounded-[1.5rem] font-bold text-xs">
+                        <input type="email" id="u-email" required placeholder="Authenticated Mapping Email" class="w-full p-4.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 rounded-[1.5rem] font-bold text-xs">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="tel" id="u-mobile" placeholder="Mobile Node" class="w-full p-4.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 rounded-[1.5rem] font-bold text-xs">
+                            <select id="u-class" class="w-full p-4.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 rounded-[1.5rem] font-bold text-xs">
+                                <option value="">Staff Only</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="Dropper">Dropper</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <h4 class="text-[9px] font-black uppercase text-slate-400 tracking-[0.4em] ml-4 border-l-3 border-ansh-indigo pl-5">Audit Data</h4>
+                        <input type="text" id="u-aadhar" placeholder="Aadhar Reference" class="w-full p-4.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 rounded-[1.5rem] font-bold text-xs">
+                        <input type="text" id="u-school" placeholder="Original Academic Branch" class="w-full p-4.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 rounded-[1.5rem] font-bold text-xs">
+                        <input type="text" id="u-goal" placeholder="Target Objective (e.g. JEE 2026)" class="w-full p-4.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 rounded-[1.5rem] font-bold text-xs">
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 pt-10 border-t border-slate-100 dark:border-white/5">
+                    <button type="submit" class="flex-1 py-7 bg-ansh-indigo text-white font-black rounded-[2.5rem] uppercase tracking-[0.5em] text-[10px] shadow-2xl hover:bg-ansh-accent active:scale-95 transition-all cursor-none">Commit to Infrastructure</button>
+                    <button id="purge-btn" type="button" onclick="purgeIdentity()" class="px-10 py-7 bg-ansh-rose/10 text-ansh-rose font-black rounded-[2.5rem] uppercase tracking-widest text-[9px] hover:bg-ansh-rose hover:text-white transition-all shadow-xl cursor-none">Purge</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: RESOURCE SYNC -->
+    <div id="material-modal" class="hidden fixed inset-0 z-[1200] flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md" onclick="closeMaterialModal()"></div>
+        <div class="relative glass-card p-10 md:p-14 rounded-[2.5rem] w-full max-w-2xl shadow-2xl animate-enter">
+            <h3 id="mat-modal-title" class="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white mb-10 leading-none">Resource Synchronization</h3>
+            <form id="material-form" class="space-y-6">
+                <input type="hidden" id="mat-id">
+                <input type="text" id="mat-title" required placeholder="Asset Title" class="w-full p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10 rounded-[1.5rem] font-bold text-xs text-slate-900 dark:text-white">
+                <input type="url" id="mat-url" required placeholder="Cloud Source URL" class="w-full p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/10 rounded-[1.5rem] font-bold text-xs text-slate-900 dark:text-white">
+                <div class="grid grid-cols-2 gap-4">
+                    <select id="mat-class" required class="w-full p-5 bg-white dark:bg-slate-900 border rounded-[1.5rem] font-bold text-xs cursor-none text-slate-900 dark:text-white"><option value="9">Class 9</option><option value="10">Class 10</option><option value="11">Class 11</option><option value="12">Class 12</option></select>
+                    <select id="mat-subject" required class="w-full p-5 bg-white dark:bg-slate-900 border rounded-[1.5rem] font-bold text-xs cursor-none text-slate-900 dark:text-white"><option value="Maths">Mathematics</option><option value="Physics">Physics</option><option value="Chemistry">Chemistry</option><option value="Biology">Biology</option></select>
+                </div>
+                <button type="submit" class="w-full py-5 bg-ansh-emerald text-white font-bold rounded-2xl uppercase tracking-widest text-[11px] shadow-lg cursor-none active:scale-95 transition-all">Publish to Vault</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Core Scripting Module -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, getDocs, collection, onSnapshot, setDoc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+                // --- CONFIGURATION & INITIALIZATION --- //PUT YOUR FIREBASE CONFIG DETAILS HERE
+        const firebaseConfig = { apiKey: " ", 
+                                authDomain: " ", 
+                                projectId: " ", 
+                                storageBucket: "  ", 
+                                messagingSenderId: " ", 
+                                appId: " " };
+        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+        const appId = 'ansh-elearning-platform';
+
+        let currentUser = null; let staffRole = null; let allUsers = []; let allResults = [];
+
+        // --- SECTION: TIERED AUTH ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const profileRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data');
+                const snap = await getDoc(profileRef);
+                const role = snap.exists() ? snap.data().role : null;
+                const name = snap.exists() ? (snap.data().displayName || "Faculty Identity") : user.email;
+                
+                if (role === 'admin' || role === 'teacher') {
+                    currentUser = user; staffRole = role;
+                    document.getElementById('cur-avatar').innerText = name[0].toUpperCase();
+                    document.getElementById('cur-name').innerText = name;
+                    document.getElementById('role-pill').innerText = `TIER-${role.toUpperCase()}`;
+                    document.getElementById('nav-role-tag').innerText = `SECURITY CLEARANCE: ${role.toUpperCase()}`;
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('admin-dashboard').classList.remove('hidden');
+                    if (role === 'admin') {
+                        document.getElementById('admin-only-sidebar').classList.remove('hidden');
+                        switchTab('overview');
+                        syncGlobalRegistry(); 
+                    } else {
+                        document.getElementById('admin-only-sidebar').remove(); 
+                        switchTab('materials'); 
+                    }
+                    initOperationalSync();
+                } else {
+                    alert("Unauthorized Session."); await signOut(auth); window.location.reload();
+                }
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('admin-dashboard').classList.add('hidden');
+                gsap.to("#login-box", { opacity: 1, scale: 1, duration: 1.2, ease: "expo.out", delay: 0.3 });
+            }
+        });
+
+        document.getElementById('admin-login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn'); btn.disabled = true; btn.innerText = "VERIFYING...";
+            try { await signInWithEmailAndPassword(auth, document.getElementById('admin-email').value, document.getElementById('admin-key').value); } 
+            catch (err) { document.getElementById('login-error').classList.remove('hidden'); btn.disabled = false; btn.innerText = "RE-AUTHORIZE"; }
+        };
+
+        window.handleLogout = () => confirm("Terminate session?") && signOut(auth);
+
+        window.toggleSidebar = () => document.body.classList.toggle('sidebar-collapsed');
+
+        // --- SECTION: REGISTRY ENGINE ---
+        async function syncGlobalRegistry() {
+            onSnapshot(collection(db, `artifacts/${appId}/public/data/exam_submissions`), async (snap) => {
+                const uidSet = new Set();
+                snap.forEach(d => uidSet.add(d.data().studentUid));
+                const matSnap = await getDocs(collection(db, 'materials'));
+                matSnap.forEach(d => uidSet.add(d.data().uploaderUid));
+                const discovered = [];
+                for (const uid of Array.from(uidSet)) {
+                    if(!uid) continue;
+                    const p = await getDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'));
+                    if (p.exists()) discovered.push({ uid, ...p.data() });
+                }
+                allUsers = discovered;
+                document.getElementById('stat-users').innerText = allUsers.length;
+                renderUsersTable(allUsers);
+            });
+        }
+
+        function renderUsersTable(users) {
+            const body = document.getElementById('users-table-body');
+            document.getElementById('registry-loader').classList.add('hidden');
+            body.innerHTML = users.map(u => `
+                <tr class="animate-reveal group">
+                    <td class="py-5 px-8">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-ansh-indigo text-white flex items-center justify-center font-black text-xs shadow-md">${u.displayName?.[0] || 'U'}</div>
+                            <div class="text-left min-w-[150px]">
+                                <p class="font-bold text-xs uppercase text-slate-900 dark:text-white leading-none mb-1.5">${u.displayName || 'Anonymous'}</p>
+                                <p class="text-[9px] text-slate-400 font-medium truncate">${u.email}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-5 px-8"><span class="badge-cyber ${u.role === 'admin' ? 'text-ansh-indigo' : 'text-ansh-emerald'}">Tier-${u.role || 'ST'}</span></td>
+                    <td class="py-5 px-8"><code class="text-[9px] font-medium text-ansh-indigo/60 bg-ansh-indigo/5 px-2 py-1 rounded-md">${u.uid?.substring(0,18)}...</code></td>
+                    <td class="py-5 px-8 text-right"><button onclick="openUserModal('${u.uid}')" class="p-3 bg-ansh-indigo text-white rounded-xl shadow-md cursor-none"><i data-lucide="shield-ellipsis" size="16"></i></button></td>
+                </tr>`).join('');
+            lucide.createIcons();
+        }
+
+        // --- SECTION: OPS ENGINE ---
+        function initOperationalSync() {
+            onSnapshot(collection(db, 'materials'), s => { document.getElementById('stat-materials').innerText = s.size; renderMaterials(s.docs); });
+            onSnapshot(collection(db, `artifacts/${appId}/public/data/exams`), s => { document.getElementById('stat-exams').innerText = s.size; renderExams(s.docs); });
+            onSnapshot(collection(db, `artifacts/${appId}/public/data/notices`), s => { document.getElementById('stat-notices').innerText = s.size; renderNotices(s.docs); });
+            onSnapshot(collection(db, `artifacts/${appId}/public/data/exam_submissions`), s => { 
+                allResults = s.docs.map(d => ({ id: d.id, ...d.data() })); 
+                updateResultFilters(); 
+                renderResults(allResults); 
+            });
+            if (staffRole === 'admin') onSnapshot(collection(db, `artifacts/${appId}/public/data/enquiries`), s => renderEnquiries(s.docs));
+        }
+
+        function renderMaterials(docs) {
+            const list = document.getElementById('materials-list');
+            const filtered = docs.filter(doc => staffRole === 'admin' || doc.data().uploaderUid === currentUser.uid);
+            list.innerHTML = filtered.map(doc => {
+                const d = doc.data();
+                return `
+                    <div class="glass-card p-6 rounded-3xl border border-slate-200 dark:border-white/5 flex flex-col justify-between group transition-all hover:shadow-xl h-[240px]">
+                        <div>
+                            <div class="flex justify-between items-start mb-6">
+                                <span class="badge-cyber text-ansh-emerald border-ansh-emerald/20">Class ${d.class}</span>
+                                <i data-lucide="file-text" class="w-4 h-4 text-slate-300"></i>
+                            </div>
+                            <h4 class="text-sm font-black uppercase text-slate-800 dark:text-white leading-tight mb-2 truncate w-full">${d.title}</h4>
+                            <p class="text-[9px] font-bold text-slate-400 tracking-widest">${d.subject || 'GENERAL'}</p>
+                        </div>
+                        <div class="flex gap-2 border-t border-slate-100 dark:border-white/5 pt-6">
+                            <button onclick='openMaterialModal("${doc.id}")' class="flex-1 py-3 bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-white hover:bg-ansh-indigo hover:text-white rounded-xl transition-all font-bold uppercase text-[9px] cursor-none">Modify</button>
+                            <button onclick='deleteRec("materials", "${doc.id}")' class="p-3 bg-ansh-rose/10 text-ansh-rose hover:bg-ansh-rose hover:text-white rounded-xl transition-all cursor-none"><i data-lucide="trash-2" size="14"></i></button>
+                        </div>
+                    </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function renderResults(results) {
+            const list = document.getElementById('results-list');
+            const filter = document.getElementById('exam-result-filter').value;
+            const filtered = filter === "All" ? results : results.filter(r => r.examTitle === filter);
+            list.innerHTML = filtered.slice(0, 10).map(r => `
+                <div class="glass-card p-5 rounded-2xl border border-slate-100 dark:border-white/5 flex justify-between items-center group transition-all hover:bg-slate-50 dark:hover:bg-white/5">
+                    <div class="flex items-center gap-6">
+                        <div class="w-10 h-10 rounded-xl bg-ansh-indigo/10 text-ansh-indigo flex items-center justify-center font-black text-sm">${r.studentName?.[0] || 'L'}</div>
+                        <div>
+                            <div class="flex gap-2 mb-1.5">
+                                <span class="text-[7px] font-black uppercase text-ansh-indigo px-1.5 py-0.5 bg-ansh-indigo/5 rounded-md">Grade ${r.studentClass}</span>
+                                <span class="text-[7px] font-black uppercase text-slate-400 px-1.5 py-0.5 bg-slate-100 dark:bg-white/5 rounded-md">${r.examTitle}</span>
+                            </div>
+                            <h4 class="font-bold text-xs uppercase text-slate-900 dark:text-white leading-none">${r.studentName || 'Learner'}</h4>
+                        </div>
+                    </div>
+                    <div class="text-right pl-8 border-l border-slate-100 dark:border-white/5 min-w-[120px]">
+                        <h4 class="text-2xl font-black ${r.percentage >= 40 ? 'text-ansh-emerald' : 'text-ansh-rose'} leading-none">${r.score}/${r.total}</h4>
+                        <p class="text-[8px] font-bold text-slate-400 uppercase mt-2">${r.percentage}% Accuracy</p>
+                    </div>
+                </div>`).join('');
+            lucide.createIcons();
+        }
+
+        function renderExams(docs) {
+            const list = document.getElementById('exams-list');
+            list.innerHTML = docs.map(doc => {
+                const d = doc.data();
+                return `<div class="glass-card p-5 rounded-2xl flex justify-between items-center"><div class="flex gap-4 items-center"><div class="w-10 h-10 rounded-xl bg-ansh-amber/10 text-ansh-amber flex items-center justify-center shadow-inner"><i data-lucide="cpu" size="18"></i></div><div><h4 class="text-xs font-black uppercase text-slate-800 dark:text-white leading-none">${d.title}</h4><p class="text-[8px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Class ${d.class} • ${d.duration} Min</p></div></div><button onclick='deleteRec("artifacts/${appId}/public/data/exams", "${doc.id}")' class="p-3 bg-ansh-rose/10 text-ansh-rose rounded-xl hover:bg-ansh-rose hover:text-white cursor-none transition-all"><i data-lucide="trash-2" size="14"></i></button></div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function renderEnquiries(docs) {
+            const list = document.getElementById('enquiries-list');
+            list.innerHTML = docs.map(doc => {
+                const d = doc.data();
+                return `<div class="glass-card p-6 rounded-3xl flex justify-between items-center"><div class="min-w-0 flex-1"><div class="flex gap-2 mb-3"><span class="badge-cyber text-ansh-blue">Grade ${d.class}</span><span class="badge-cyber text-slate-400">GOAL: ${d.goal}</span></div><h4 class="text-sm font-black uppercase text-slate-800 dark:text-white truncate">${d.name}</h4><p class="text-[9px] text-slate-400 mt-2 font-tech underline">${d.email} • ${d.phone}</p></div><button onclick='deleteRec("artifacts/${appId}/public/data/enquiries", "${doc.id}")' class="ml-4 p-4 bg-ansh-rose/10 text-ansh-rose rounded-2xl hover:bg-ansh-rose hover:text-white cursor-none transition-all"><i data-lucide="trash-2" size="18"></i></button></div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function renderNotices(docs) {
+            const list = document.getElementById('notices-list');
+            list.innerHTML = docs.map(doc => {
+                const d = doc.data();
+                return `<div class="glass-card p-8 rounded-[2.5rem]"><div class="flex justify-between items-start mb-6"><div class="badge-cyber ${d.priority === 'urgent' ? 'text-ansh-rose animate-pulse' : 'text-slate-400'}">${d.priority}</div><button onclick='deleteRec("artifacts/${appId}/public/data/notices", "${doc.id}")' class="text-slate-300 hover:text-ansh-rose cursor-none transition-all"><i data-lucide="trash-2" size="16"></i></button></div><h4 class="text-lg font-black uppercase text-slate-800 dark:text-white mb-4 leading-tight">${d.title}</h4><p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3">${d.body}</p></div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        // --- SECTION: NAVIGATION ENGINE ---
+        window.switchTab = (tab) => {
+            const adminTabs = ['users', 'overview', 'enquiries'];
+            if(staffRole !== 'admin' && adminTabs.includes(tab)) return;
+            document.querySelectorAll('.tab-content').forEach(c => { c.classList.add('hidden'); });
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            const content = document.getElementById(`content-${tab}`);
+            if(content) content.classList.remove('hidden');
+            const navBtn = document.getElementById(`tab-${tab}`);
+            if(navBtn) navBtn.classList.add('active');
+            lucide.createIcons();
+        };
+
+        window.openUserModal = async (uid) => {
+            const snap = await getDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'));
+            if(snap.exists()) {
+                const d = snap.data();
+                document.getElementById('edit-user-uid-input').value = uid;
+                document.getElementById('edit-user-uid-input').readOnly = true;
+                document.getElementById('u-name').value = d.displayName || "";
+                document.getElementById('u-email').value = d.email || "";
+                document.getElementById('u-mobile').value = d.mobile || "";
+                document.getElementById('u-class').value = d.class || "";
+                document.getElementById('u-role').value = d.role || "student";
+                document.getElementById('u-goal').value = d.goal || "";
+                document.getElementById('u-aadhar').value = d.aadhar || "";
+                document.getElementById('u-school').value = d.schoolName || "";
+                document.getElementById('u-override').value = d.securityOverride || "";
+                document.getElementById('user-edit-modal').classList.remove('hidden');
+                lucide.createIcons();
+            }
+        };
+
+        window.openNewUserModal = () => {
+            document.getElementById('master-user-form').reset();
+            document.getElementById('edit-user-uid-input').value = "";
+            document.getElementById('edit-user-uid-input').readOnly = false;
+            document.getElementById('user-edit-modal').classList.remove('hidden');
+        };
+
+        window.closeUserModal = () => document.getElementById('user-edit-modal').classList.add('hidden');
+        window.closeMaterialModal = () => document.getElementById('material-modal').classList.add('hidden');
+        window.openMaterialModal = async (id = "") => {
+             document.getElementById('material-form').reset();
+             document.getElementById('mat-id').value = id;
+             if(id) {
+                 const snap = await getDoc(doc(db, 'materials', id));
+                 if(snap.exists()) {
+                     const d = snap.data();
+                     document.getElementById('mat-title').value = d.title || "";
+                     document.getElementById('mat-url').value = d.url || d.driveUrl || "";
+                     document.getElementById('mat-class').value = d.class || "10";
+                     document.getElementById('mat-subject').value = d.subject || "Maths";
+                 }
+             }
+             document.getElementById('material-modal').classList.remove('hidden');
+             lucide.createIcons();
+        };
+
+        window.deleteRec = async (path, id) => confirm("Permanently purge this record?") && await deleteDoc(doc(db, path, id));
+
+        document.getElementById('master-user-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const uid = document.getElementById('edit-user-uid-input').value.trim();
+            const data = {
+                displayName: document.getElementById('u-name').value, email: document.getElementById('u-email').value,
+                mobile: document.getElementById('u-mobile').value, class: document.getElementById('u-class').value,
+                role: document.getElementById('u-role').value, goal: document.getElementById('u-goal').value,
+                aadhar: document.getElementById('u-aadhar').value, schoolName: document.getElementById('u-school').value,
+                securityOverride: document.getElementById('u-override').value, adminLastUpdated: serverTimestamp()
+            };
+            await setDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'), data, { merge: true });
+            alert("Database Sync Complete."); window.closeUserModal();
+        };
+
+        document.getElementById('material-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('mat-id').value;
+            const data = { title: document.getElementById('mat-title').value, url: document.getElementById('mat-url').value, class: document.getElementById('mat-class').value, subject: document.getElementById('mat-subject').value, updatedAt: serverTimestamp() };
+            if(id) await updateDoc(doc(db, 'materials', id), data);
+            else await setDoc(doc(collection(db, 'materials')), { ...data, uploaderUid: currentUser.uid, createdAt: serverTimestamp() });
+            window.closeMaterialModal();
+        };
+
+        window.sendResetEmail = async () => {
+             const email = document.getElementById('u-email').value;
+             if(confirm(`Send secure reset link to ${email}?`)) {
+                 try { await sendPasswordResetEmail(auth, email); alert("Reset Dispatched."); }
+                 catch (e) { alert("Dispatcher Fault."); }
+             }
+        };
+
+        window.purgeIdentity = async () => {
+            const uid = document.getElementById('edit-user-uid-input').value;
+            if(confirm("Permanently wipe entire presence?")) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'));
+                alert("Identity Purged."); window.closeUserModal();
+            }
+        };
+
+        function updateResultFilters() {
+            const filter = document.getElementById('exam-result-filter');
+            const current = filter.value;
+            const unique = ['All', ...new Set(allResults.map(r => r.examTitle))];
+            filter.innerHTML = unique.map(u => `<option value="${u}">${u === 'All' ? 'performance' : u}</option>`).join('');
+            filter.value = current || 'All';
+        }
+
+        window.filterResults = () => renderResults(allResults);
+
+        // GSAP Mirror Cursor Engine
+        const cursor = document.getElementById('custom-cursor');
+        const follower = document.getElementById('custom-cursor-follower');
+        window.addEventListener('mousemove', (e) => {
+            if (!document.body.classList.contains('cursor-active')) document.body.classList.add('cursor-active');
+            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0 });
+            gsap.to(follower, { x: e.clientX - 12, y: e.clientY - 12, duration: 0.15, ease: "power2.out" });
+        });
+        document.addEventListener('mouseover', (e) => {
+            if (e.target.closest('button, a, input, select, textarea')) document.body.classList.add('cursor-hover');
+            else document.body.classList.remove('cursor-hover');
+        });
+
+        window.toggleTheme = () => {
+            const isD = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('ansh_theme', isD ? 'dark' : 'light');
+            document.getElementById('theme-icon').setAttribute('data-lucide', isD ? 'sun' : 'moon');
+            lucide.createIcons();
+        };
+        if (localStorage.getItem('ansh_theme') === 'dark') document.documentElement.classList.add('dark');
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>

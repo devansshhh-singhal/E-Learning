@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <script>
+  // Set this to true to enable maintenance mode
+  var isMaintenance = false; 
+
+  if (isMaintenance) {
+    window.location.href = "maintanence.html";
+  }
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notice Board | ANSH E-LEARNING</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .bg-mesh {
+            background-color: #f8fafc;
+            background-image: radial-gradient(at 0% 0%, rgba(249, 115, 22, 0.05) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+        .dark .bg-mesh {
+            background-color: #020617;
+            background-image: radial-gradient(at 0% 0%, rgba(124, 45, 18, 0.15) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(30, 58, 138, 0.1) 0px, transparent 50%);
+        }
+
+        .notice-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .notice-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .urgent-border {
+            border-left: 4px solid #ef4444;
+        }
+
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-mesh text-slate-900 dark:text-slate-100 min-h-screen">
+
+    <!-- Header Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="userDashboard.html" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </a>
+                <span class="text-sm font-black tracking-tighter uppercase text-orange-600">Notice Board</span>
+            </div>
+            <div id="student-class-badge" class="px-4 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-500">
+                Syncing Class...
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-24 pb-20 px-6">
+        <div class="max-w-4xl mx-auto">
+            
+            <header class="mb-12 text-center animate-fade-in">
+                <h1 class="text-4xl md:text-5xl font-black tracking-tighter uppercase bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600 mb-4">
+    Campus Bulletin
+</h1>
+
+
+                <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Stay updated with the latest announcements for your batch</p>
+            </header>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="py-20 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mb-4"></div>
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Accessing Cloud Database...</p>
+            </div>
+
+            <!-- Notices List -->
+            <div id="notices-container" class="space-y-6 hidden">
+                <!-- Notices injected here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden py-32 text-center animate-fade-in">
+                <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="mail-open" class="w-10 h-10 text-slate-300"></i>
+                </div>
+                <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tight mb-2">The bulletin is clear</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm max-w-xs mx-auto">There are no announcements for your class at this time.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Firebase System -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, doc, collection, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // --- CONFIGURATION & INITIALIZATION --- //PUT YOUR FIREBASE CONFIG DETAILS HERE
+        const firebaseConfig = { apiKey: " ", 
+                                authDomain: " ", 
+                                projectId: " ", 
+                                storageBucket: "  ", 
+                                messagingSenderId: " ", 
+                                appId: " " };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = 'ansh-elearning-platform';
+        
+        let userClass = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Fetch User Class from Profile
+                const profileRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data');
+                const profileSnap = await getDoc(profileRef);
+                
+                if (profileSnap.exists()) {
+                    userClass = String(profileSnap.data().class || "10");
+                    document.getElementById('student-class-badge').innerText = `Your Batch: Class ${userClass}`;
+                    startNoticeListener();
+                } else {
+                    // Fallback to Dashboard default if profile not found
+                    userClass = "10";
+                    startNoticeListener();
+                }
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        function startNoticeListener() {
+            const noticesRef = collection(db, 'artifacts', appId, 'public', 'data', 'notices');
+            
+            onSnapshot(noticesRef, (snapshot) => {
+                const container = document.getElementById('notices-container');
+                const loading = document.getElementById('loading-state');
+                const empty = document.getElementById('empty-state');
+                
+                loading.classList.add('hidden');
+                container.innerHTML = '';
+                
+                let notices = [];
+                snapshot.forEach(doc => notices.push({ id: doc.id, ...doc.data() }));
+
+                // Filter by class (Standard path logic)
+                const filtered = notices.filter(n => {
+                    const target = String(n.target || n.targetClass || "All");
+                    return target === "All" || target === userClass;
+                });
+
+                // Sort: Urgent first, then by date (newest first)
+                filtered.sort((a, b) => {
+                    if (a.priority === 'urgent' && b.priority !== 'urgent') return -1;
+                    if (a.priority !== 'urgent' && b.priority === 'urgent') return 1;
+                    return (b.createAt?.seconds || 0) - (a.createAt?.seconds || 0);
+                });
+
+                if (filtered.length === 0) {
+                    empty.classList.remove('hidden');
+                    container.classList.add('hidden');
+                } else {
+                    empty.classList.add('hidden');
+                    container.classList.remove('hidden');
+
+                    filtered.forEach(notice => {
+                        const date = notice.createAt?.toDate ? notice.createAt.toDate().toLocaleDateString('en-IN', {
+                            day: 'numeric', month: 'short', year: 'numeric'
+                        }) : 'Recent';
+
+                        const isUrgent = notice.priority === 'urgent';
+
+                        const card = document.createElement('div');
+                        card.className = `notice-card p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm animate-fade-in ${isUrgent ? 'urgent-border' : ''}`;
+                        
+                        card.innerHTML = `
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="flex gap-2">
+                                    <span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[9px] font-black uppercase tracking-widest rounded-lg">
+                                        Target: ${notice.target || 'General'}
+                                    </span>
+                                    ${isUrgent ? `
+                                        <span class="px-3 py-1 bg-red-50 text-red-500 text-[9px] font-black uppercase tracking-widest rounded-lg flex items-center gap-1.5 border border-red-100">
+                                            <span class="w-1 h-1 bg-red-500 rounded-full animate-ping"></span>
+                                            Urgent
+                                        </span>
+                                    ` : ''}
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-400 ">${date}</span>
+                            </div>
+                            
+                            <h3 class="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white mb-4 
+                                    tracking-wide uppercase leading-snug">
+                                ${notice.title}
+                            </h3>
+
+                            <p class="max-w-3xl text-center text-sm md:text-base 
+    text-slate-100 leading-relaxed font-medium 
+    whitespace-pre-wrap tracking-wide
+    bg-slate-900 backdrop-blur-md 
+    p-6 rounded-2xl shadow-lg">
+
+                                ${notice.body}
+                            </p>
+
+                            
+                            <div class="pt-6 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 font-black text-xs">
+                                        ${notice.teacherName?.charAt(0) || 'A'}
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] font-black uppercase tracking-widest text-slate-800 dark:text-white">${notice.teacherName || 'Faculty'}</p>
+                                        <p class="text-[8px] font-bold text-slate-400 uppercase">Authenticated Teacher</p>
+                                    </div>
+                                </div>
+                                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500/30"></i>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                    lucide.createIcons();
+                }
+            });
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>

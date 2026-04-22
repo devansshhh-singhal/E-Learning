@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under Maintenance | ANSH E-LEARNING</title>
+    
+    <!-- Custom Tab Icon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        glass: {
+                            light: 'rgba(255, 255, 255, 0.7)',
+                            dark: 'rgba(15, 23, 42, 0.7)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        .bg-mesh {
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.15) 0px, transparent 50%);
+        }
+        .dark .bg-mesh {
+            background-color: #020617;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(30, 58, 138, 0.25) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(49, 46, 129, 0.25) 0px, transparent 50%);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+        .dark .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .animate-fade-up {
+            animation: fadeUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-mesh text-slate-900 dark:text-slate-100 min-h-screen flex items-center justify-center p-6">
+
+    <div class="fixed top-6 right-6 z-50">
+        <button onclick="toggleTheme()" class="p-3 rounded-2xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-all shadow-lg">
+            <i id="theme-icon-light" data-lucide="sun" class="w-6 h-6 block dark:hidden"></i>
+            <i id="theme-icon-dark" data-lucide="moon" class="w-6 h-6 hidden dark:block"></i>
+        </button>
+    </div>
+
+    <div class="max-w-2xl w-full text-center animate-fade-up">
+        <div class="flex items-center justify-center space-x-3 mb-12">
+            <div class="bg-blue-600 p-2 rounded-2xl shadow-xl shadow-blue-500/20">
+                <i data-lucide="graduation-cap" class="text-white w-8 h-8"></i>
+            </div>
+            <span class="text-2xl font-black tracking-tighter text-blue-900 dark:text-blue-400 uppercase">ANSH E-LEARNING</span>
+        </div>
+
+        <div class="glass-card rounded-[4rem] p-10 md:p-16 relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10">
+                <div class="mb-8 flex justify-center">
+                    <div class="relative animate-float">
+                        <div class="absolute inset-0 bg-blue-400/20 blur-2xl rounded-full"></div>
+                        <i data-lucide="hammer" class="w-24 h-24 text-blue-600 dark:text-blue-400 relative z-10"></i>
+                    </div>
+                </div>
+
+                <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter">
+                    We're Upgrading!
+                </h1>
+                
+                <p class="text-lg text-slate-500 dark:text-slate-400 font-medium mb-10 leading-relaxed max-w-md mx-auto">
+                    The platform is currently under scheduled maintenance to bring you a faster, more intelligent learning experience. We'll be back shortly!
+                </p>
+
+                <div class="flex items-center justify-center">
+                    <!-- User can set the main URL here -->
+                    <a href="index.html" class="w-full sm:w-auto px-12 py-5 bg-blue-600 text-white font-black rounded-3xl text-sm uppercase tracking-widest hover:bg-blue-700 transition-all shadow-2xl shadow-blue-500/30 flex items-center justify-center">
+                        <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
+                        Try Reconnecting
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <p class="mt-12 text-slate-400 dark:text-slate-500 text-xs font-black uppercase tracking-[0.3em]">
+            Need immediate help? Contact <span class="text-blue-600 dark:text-blue-400 font-bold">support@anshelearing.com</span>
+        </p>
+    </div>
+
+    <script>
+        window.toggleTheme = () => {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        };
+
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>

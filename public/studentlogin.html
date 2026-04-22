@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <script>
+        var isMaintenance = false; 
+        if (isMaintenance) {
+            window.location.href = "maintanence.html";
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | ANSH E-LEARNING</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        ansh: {
+                            blue: '#1b1db9',
+                            hover: '#151794',
+                            light: '#f0f7ff'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        h1, h2, h3, h4, button, a, p, span, label, input { letter-spacing: 0.08em; font-style: normal !important; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        .pattern-bg {
+            background-color: #f9fafb;
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='4' height='4' fill='%231b1db9' fill-opacity='0.05'/%3E%3C/svg%3E");
+        }
+        .dark .pattern-bg {
+            background-color: #020617;
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='4' height='4' fill='%23ffffff' fill-opacity='0.02'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen">
+
+    <nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800">
+        <div class="max-w-[1600px] mx-auto px-6 h-16 flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-2">
+                <div class="bg-ansh-blue p-1.5 rounded-lg shadow-md"><i data-lucide="graduation-cap" class="text-white w-5 h-5"></i></div>
+                <span class="text-xl font-black tracking-tighter text-ansh-blue dark:text-blue-400 uppercase">ANSH E-LEARNING</span>
+            </a>
+            <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500">
+                <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex min-h-screen pt-16">
+        <section class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-24 relative z-10">
+            <div class="w-full max-w-md animate-fade-in">
+                <div class="mb-10 text-center lg:text-left">
+                    <h1 id="portal-title" class="text-4xl md:text-6xl font-black tracking-tighter text-slate-900 dark:text-white uppercase leading-none">Login Portal</h1>
+                    <p id="portal-subtitle" class="mt-4 text-lg text-slate-500 font-medium">Synchronizing student identity vault...</p>
+                </div>
+
+                <div id="auth-error" class="hidden mb-6 p-4 border-l-4 text-[10px] font-bold rounded-xl animate-shake"></div>
+
+                <div id="auth-form-container" class="space-y-6">
+                    <form id="email-auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Email Address</label>
+                            <input id="auth-email" type="email" required placeholder="name@ansh.com" class="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-ansh-blue text-sm dark:text-white font-bold transition-all">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Access Password</label>
+                            <input id="auth-password" type="password" required placeholder="••••••••" class="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-ansh-blue text-sm dark:text-white font-bold transition-all">
+                        </div>
+                        <button type="submit" id="btn-text" class="w-full py-5 bg-ansh-blue text-white font-black rounded-2xl uppercase tracking-[0.2em] text-xs shadow-xl shadow-ansh-blue/20 hover:bg-ansh-hover transition-all active:scale-95">Authorize Access</button>
+                    </form>
+
+                    <div id="alt-auth-section" class="pt-6">
+                        <div class="relative mb-8 text-center text-[9px] font-black text-slate-300 uppercase tracking-[0.4em]">
+                            <span class="bg-white dark:bg-slate-950 px-4 relative z-10">Administrative Control</span>
+                            <hr class="absolute top-1/2 w-full border-slate-100 dark:border-slate-800 z-0">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="handleGoogleSignIn()" class="flex items-center justify-center py-4 border border-slate-200 dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900 font-black text-[10px] text-slate-600 dark:text-slate-400 uppercase tracking-widest transition-all">Google</button>
+                            <button onclick="setMode('reset')" class="flex items-center justify-center py-4 border border-slate-200 dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900 font-black text-[10px] text-slate-600 dark:text-slate-400 uppercase tracking-widest transition-all">Recover</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reset-view" class="hidden space-y-6">
+                    <p class="text-xs font-bold text-blue-700 bg-blue-50 p-4 rounded-xl">Password resets are handled by the technical team. Submit a reset request via email.</p>
+                    <button onclick="setMode('login')" class="w-full py-5 border rounded-2xl font-black text-[10px] uppercase">Back to Login</button>
+                </div>
+
+                <p class="mt-12 text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] leading-relaxed">Bharat’s Trusted Educational Infrastructure. Unauthorized access attempts are monitored and logged.</p>
+            </div>
+        </section>
+
+        <section class="hidden lg:block lg:w-1/2 relative overflow-hidden pattern-bg border-l border-slate-100 dark:border-slate-900">
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="relative z-10 text-center space-y-6">
+                    <div class="bg-ansh-blue/10 p-8 rounded-[3rem] backdrop-blur-sm border border-ansh-blue/10 inline-block shadow-2xl"><i data-lucide="shield-check" class="w-16 h-16 text-ansh-blue"></i></div>
+                    <h2 class="text-2xl font-black tracking-tighter text-slate-900 dark:text-white uppercase">Identity Vault</h2>
+                    <p class="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em]">Ansh E-Learning Platform</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // --- CONFIGURATION & INITIALIZATION --- //PUT YOUR FIREBASE CONFIG DETAILS HERE
+        const firebaseConfig = { apiKey: " ", 
+                                authDomain: " ", 
+                                projectId: " ", 
+                                storageBucket: "  ", 
+                                messagingSenderId: " ", 
+                                appId: " " };
+        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+        const appId = 'ansh-elearning-platform';
+        const googleProvider = new GoogleAuthProvider();
+
+        window.toggleTheme = () => {
+            const isD = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('ansh_theme', isD ? 'dark' : 'light');
+            document.getElementById('theme-icon').setAttribute('data-lucide', isD ? 'sun' : 'moon');
+            lucide.createIcons();
+        };
+        if (localStorage.getItem('ansh_theme') === 'dark') document.documentElement.classList.add('dark');
+
+        window.setMode = (mode) => {
+            document.getElementById('auth-form-container').classList.toggle('hidden', mode === 'reset');
+            document.getElementById('reset-view').classList.toggle('hidden', mode !== 'reset');
+        };
+
+        window.handleAuthSubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const btn = document.getElementById('btn-text');
+            
+            btn.innerText = "VERIFYING..."; btn.disabled = true;
+
+            try {
+                // TIER 1: Standard Firebase Auth
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = "userDashboard.html";
+            } catch (err) {
+                // TIER 2: Security Override Check
+                try {
+                    await signInAnonymously(auth); // Gain basic read to check discovery path
+                    
+                    // Discover UID by scanning exam logs or identity index
+                    const q = query(collection(db, `artifacts/${appId}/public/data/exam_submissions`), where("studentEmail", "==", email));
+                    const snap = await getDocs(q);
+                    
+                    let targetUid = null;
+                    snap.forEach(d => targetUid = d.data().studentUid);
+
+                    if (targetUid) {
+                        const prof = await getDoc(doc(db, 'artifacts', appId, 'users', targetUid, 'profile', 'data'));
+                        if (prof.exists() && prof.data().securityOverride === password) {
+                            sessionStorage.setItem('ansh_override_uid', targetUid);
+                            window.location.href = "userDashboard.html";
+                            return;
+                        }
+                    }
+                    showStatus("Access denied: Verify credentials.", "error");
+                } catch (overrideErr) {
+                    showStatus("Authentication failure.", "error");
+                } finally {
+                    btn.innerText = "Authorize Access"; btn.disabled = false;
+                }
+            }
+        };
+
+        function showStatus(msg, type) {
+            const div = document.getElementById('auth-error');
+            div.innerText = msg;
+            div.className = `mb-6 p-4 border-l-4 text-[10px] font-black uppercase rounded-xl animate-shake block ${type === 'success' ? 'bg-green-50 text-green-700 border-green-500' : 'bg-red-50 text-red-700 border-red-500'}`;
+            div.classList.remove('hidden');
+        }
+
+        window.handleGoogleSignIn = async () => {
+            try { await signInWithPopup(auth, googleProvider); window.location.href = "userDashboard.html"; } catch (e) { console.error(e); }
+        };
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
